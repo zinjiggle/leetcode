@@ -2,7 +2,7 @@
 <style type="text/css">
   body {
     margin: auto;
-    width: 1000px;
+    width: 900px;
   }
 </style>
 
@@ -46,7 +46,7 @@ class Solution {
         if (dict.count(s)) {
             ret.push_back(s);
         }
-        for (int i = 1; i < s.length(); ++i) {
+        for (int i = 1; i &lt; s.length(); ++i) {
             const string end = s.substr(i);
             if (dict.count(end)) {
                 const auto &amp;front = wordBreak(s.substr(0, i), dict);
@@ -202,7 +202,7 @@ minStack.getMin();   --&gt; Returns -2.
         const int pos = data_.size() - 1;
         if (min_.empty()) {
             min_.push_back(pos);
-        } else if (getMin() > x) {
+        } else if (getMin() &gt; x) {
             min_.push_back(pos);
         }
     }
@@ -260,11 +260,11 @@ return: 3, for 3 arithmetic slices in A: [1, 2, 3], [2, 3, 4] and [1, 2, 3, 4] i
   class Solution {
    public:
     int numberOfArithmeticSlices(vector&lt;int&gt;&amp; A) {
-        if (A.size() < 3) {
+        if (A.size() &lt; 3) {
             return 0;
         }
         vector&lt;int&gt; can;
-        for (int i = 0; i < A.size() - 2;) {
+        for (int i = 0; i &lt; A.size() - 2;) {
             if (!isCandi(A, i)) {
                 ++i;
                 continue;
@@ -283,7 +283,7 @@ return: 3, for 3 arithmetic slices in A: [1, 2, 3], [2, 3, 4] and [1, 2, 3, 4] i
     int findSeq(const vector&lt;int&gt; &amp;A, int i) {
         const int dis = A[i+1] - A[i];
         int j = i + 1;
-        for (; j < A.size() &amp;&amp; dis == A[j] - A[j-1]; ++j) {
+        for (; j &lt; A.size() &amp;&amp; dis == A[j] - A[j-1]; ++j) {
         }
         return j - i;
 
@@ -306,13 +306,13 @@ class Solution {
 public:
     int numberOfArithmeticSlices(vector&lt;int&gt;&amp; A) {
         int n = A.size();
-        if (n < 3) return 0;
+        if (n &lt; 3) return 0;
         // dp[i] means the number of arithmetic slices ending with A[i]
         vector&lt;int&gt; dp(n, 0);
         // if the first three numbers are arithmetic or not
         if (A[2]-A[1] == A[1]-A[0]) dp[2] = 1;
         int result = dp[2];
-        for (int i = 3; i < n; ++i) {
+        for (int i = 3; i &lt; n; ++i) {
             // if A[i-2], A[i-1], A[i] are arithmetic,
             // then the number of arithmetic slices ending with A[i] (dp[i])
             // equals to:
@@ -376,15 +376,15 @@ All arithmetic subsequence slices are:
 class Solution {
 public:
     int numberOfArithmeticSlices(vector&lt;int&gt;&amp; A) {
-        if (A.size() < 3) {
+        if (A.size() &lt; 3) {
             return 0;
         }
         int ret = 0;
         // index -> diff -> count.
         // Number of Arithmetic slices ending at index, with diff, min length is 2.
         vector&lt;unordered_map&lt;int, int&gt;&gt; dp(A.size());
-        for (int i = 0; i < A.size(); ++i) {
-            for (int j = 0; j < i; ++j) {
+        for (int i = 0; i &lt; A.size(); ++i) {
+            for (int j = 0; j &lt; i; ++j) {
                 const long bound = long(A[i]) - long(A[j]);
                 if (bound >= INT_MAX || bound <= INT_MIN) {
                     continue;
@@ -519,18 +519,18 @@ public:
     // It takes O(logn) iterations and each iteration takes O(n) so the time
     // complexity is O(nlogn).
     int divideAndConqur(const string &amp;s, int b, int e, int k) {
-        if ((e - b) < k) {
+        if ((e - b) &lt; k) {
             return 0;
         }
         int cnt[26]{}; // Initialize all to 0.
-        for (int i = b; i < e; ++i) {
+        for (int i = b; i &lt; e; ++i) {
             const int val = s[i] - 'a';
             cnt[val] += 1;
         }
-        for (int i = b; i < e; ++i) {
+        for (int i = b; i &lt; e; ++i) {
             const int val = s[i] - 'a';
-            if (cnt[val] < k) {
-                // If we found one element whose total < k, then any sub string containing
+            if (cnt[val] &lt; k) {
+                // If we found one element whose total &lt; k, then any sub string containing
                 // that element cannot be taken into consideration.
                 return max(divideAndConqur(s, b, i, k), divideAndConqur(s, i+1, e, k));
             }
@@ -545,6 +545,280 @@ Thanks to <a href="https://discuss.leetcode.com/topic/64483/10-lines-c-solution-
 for enlightening.
 </p>
 <p>One O(n) time complexity solution is <a href="https://discuss.leetcode.com/topic/65229/c-o-n-simple-recursive-solution/2">here</a>, but it consumes O(n) extra memory as well.</p>
+
+<h2>314. FACEBOOK <a href="https://leetcode.com/problems/binary-tree-vertical-order-traversal/"> Binary Tree Vertical Order Traversal</a></h2>
+
+<p><a href="https://discuss.leetcode.com/topic/31109/my-solution-in-c/3">Nice and short solution</a></p>
+
+<div class="question-content">
+<p>Given a binary tree, return the <i>vertical order</i> traversal of its nodes' values. (ie, from top to bottom, column by column).</p>
+<p>If two nodes are in the same row and column, the order should be from <b>left to right</b>.</p>
+<p>
+<b>Examples:</b><br></p>
+<p>
+</p><ol>
+<li>Given binary tree <code>[3,9,20,null,null,15,7]</code>,<br>
+<pre>   3
+  /\
+ /  \
+ 9  20
+    /\
+   /  \
+  15   7
+</pre>
+<p></p>
+<p>
+return its vertical order traversal as:<br>
+</p><pre>[
+  [9],
+  [3,15],
+  [20],
+  [7]
+]
+</pre>
+</li>
+
+<li>Given binary tree <code>[3,9,8,4,0,1,7]</code>,<br>
+<pre>     3
+    /\
+   /  \
+   9   8
+  /\  /\
+ /  \/  \
+ 4  01   7
+</pre>
+<p></p>
+<p>
+return its vertical order traversal as:<br>
+</p><pre>[
+  [4],
+  [9],
+  [3,0,1],
+  [8],
+  [7]
+]
+</pre>
+</li>
+
+<li>Given binary tree <code>[3,9,8,4,0,1,7,null,null,null,2,5]</code> (0's right child is 2 and 1's left child is 5),<br>
+<pre>     3
+    /\
+   /  \
+   9   8
+  /\  /\
+ /  \/  \
+ 4  01   7
+    /\
+   /  \
+   5   2
+</pre>
+<p>
+return its vertical order traversal as:<br>
+</p><pre>[
+  [4],
+  [9,5],
+  [3,0,1],
+  [8,2],
+  [7]
+]
+</pre>
+</li>
+</ol>
+</div>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    struct NodeColumn {
+        TreeNode *node;
+        int col;
+    };
+
+    struct Size {
+        int left;
+        int right;
+    };
+
+    Size GetColumnSize(TreeNode *root) {
+        if (root == nullptr) {
+            return Size{0, 0};
+        }
+        const Size &amp;left = GetColumnSize(root->left);
+        const Size &amp;right = GetColumnSize(root->right);
+        return Size {
+            std::max(left.left + 1, right.left - 1),
+            std::max(left.right - 1, right.right + 1)
+        };
+    }
+
+    vector&lt;vector&lt;int&gt;&gt; verticalOrder(TreeNode* root) {
+        vector&lt;vector&lt;int&gt;&gt; ret;
+        if (root == nullptr) {
+            return ret;
+        }
+        const Size &amp;size = GetColumnSize(root);
+        ret.resize(size.left + size.right - 1, {});
+        // Traverse using queue.
+        std::queue&lt;NodeColumn&gt; trav;
+        trav.push(NodeColumn{root, size.left - 1});
+        while (!trav.empty()) {
+            const NodeColumn &amp;current = trav.front();
+            trav.pop();
+            ret[current.col].push_back(current.node->val);
+            if (current.node->left) {
+                trav.push(NodeColumn{current.node->left, current.col - 1});
+            }
+            if (current.node->right) {
+                trav.push(NodeColumn{current.node->right, current.col + 1});
+            }
+
+        }
+        return ret;
+    }
+};
+</code></pre>
+
+<!--
+<h2>314. Binary Tree Vertical Order Traversal</h2>
+-->
+
+<h2>273. <a href="https://leetcode.com/problems/integer-to-english-words/">Integer to English Words </a> </h2>
+<div class="question-content">
+<p>
+Convert a non-negative integer to its english words representation. Given input is guaranteed to be less than 2<sup>31</sup> - 1.
+</p>
+
+<p>For example,<br>
+</p><pre>123 -&gt; "One Hundred Twenty Three"
+12345 -&gt; "Twelve Thousand Three Hundred Forty Five"
+1234567 -&gt; "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"</pre>
+
+<p><a href="https://discuss.leetcode.com/topic/23054/my-clean-java-solution-very-easy-to-understand/2">Good solution</a></p>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+public:
+
+    void trim(string *str) {
+        while (*str->rbegin() == ' ') {
+            str->pop_back();
+        }
+    }
+
+    string join(const vector&lt;string&gt; &amp;input) {
+        string ret;
+        for (const string &amp;t : input) {
+            if (!t.empty()) {
+                ret.append(t);
+                ret.append(" ");
+            }
+        }
+        trim(&amp;ret);
+        return ret;
+    }
+
+    string numberToWords(int num) {
+        if (num == 0) {
+            return "Zero";
+        }
+        static const vector&lt;string&gt; split = {
+            "",
+            "Thousand",
+            "Million",
+            "Billion",
+            "Trillion"
+        };
+        vector&lt;string&gt; all_tokens;
+        int i = 0;
+        while (num &gt; 0) {
+            const int under_thou = num - (num / 1000) * 1000;
+            num /= 1000;
+            const string &amp;token = BelowThousand(under_thou);
+            if (!token.empty()) {
+                all_tokens.push_back(join({
+                    token, split[i]
+                }));
+            }
+            ++i;
+        }
+        std::reverse(all_tokens.begin(), all_tokens.end());
+        return join(all_tokens);
+    }
+
+
+    string TokenTranslate(int num) {
+        static const map&lt;int, string&gt; mapping = {
+            {0, ""},
+            {1, "One"},
+            {2, "Two"},
+            {3, "Three"},
+            {4, "Four"},
+            {5, "Five"},
+            {6, "Six"},
+            {7, "Seven"},
+            {8, "Eight"},
+            {9, "Nine"},
+            {10, "Ten"},
+            {11, "Eleven"},
+            {12, "Twelve"},
+            {13, "Thirteen"},
+            {14, "Fourteen"},
+            {15, "Fifteen"},
+            {16, "Sixteen"},
+            {17, "Seventeen"},
+            {18, "Eighteen"},
+            {19, "Nineteen"},
+            {20, "Twenty"},
+            {30, "Thirty"},
+            {40, "Forty"},
+            {50, "Fifty"},
+            {60, "Sixty"},
+            {70, "Seventy"},
+            {80, "Eighty"},
+            {90, "Ninety"}
+        };
+        return mapping.at(num);
+    }
+
+    string BelowHundred(int num) {
+        // num &lt; 100.
+        if (num &lt; 20) {
+            return TokenTranslate(num);
+        }
+        int tens = (num / 10) * 10;
+        return join({
+            TokenTranslate(tens), TokenTranslate(num - tens)
+        });
+    }
+
+    string BelowThousand(int num) {
+        // num &lt; 1000.
+        if (num &lt; 100) {
+            return BelowHundred(num);
+        }
+        return join({
+            BelowHundred(num / 100), "Hundred", BelowHundred(num - (num / 100) * 100)
+        });
+    }
+};
+
+</code></pre>
+
+<!--
+<h2>273. Integer to English Words  </h2>
+-->
+
 
 <script src="http://code.jquery.com/jquery-2.2.2.min.js"></script>
 
