@@ -1,0 +1,554 @@
+<head>
+<style type="text/css">
+  body {
+    margin: auto;
+    width: 1000px;
+  }
+</style>
+
+</head>
+
+<body onload="">
+
+<h2>140. Word Break II </h2>
+<div class="question-content">
+<p>
+  Given a string <i>s</i> and a dictionary of words <i>dict</i>, add spaces in <i>s</i> to construct a sentence where each word is a valid dictionary word.
+</p>
+<p>
+  Return all such possible sentences.
+</p>
+<p>
+  For example, given<br>
+  <i>s</i> = <code>"catsanddog"</code>,<br>
+  <i>dict</i> = <code>["cat", "cats", "and", "sand", "dog"]</code>.
+</p>
+<p>
+  A solution is <code>["cats and dog", "cat sand dog"]</code>.
+</p>
+</div>
+
+<?prettify?>
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+   unordered_map&lt;string, vector&lt;string&gt;&gt; m;
+
+   public:
+    vector&lt;string&gt; wordBreak(string s, unordered_set&lt;string&gt;&amp; dict) {
+        if (s.empty()) {
+            return {};
+        }
+        if (m.count(s)) {
+            return m[s];
+        }
+        vector&lt;string&gt; ret;
+        if (dict.count(s)) {
+            ret.push_back(s);
+        }
+        for (int i = 1; i < s.length(); ++i) {
+            const string end = s.substr(i);
+            if (dict.count(end)) {
+                const auto &amp;front = wordBreak(s.substr(0, i), dict);
+                if (!front.empty()) {
+                    const vector&lt;string&gt; new_sols = combine(front, end);
+                    ret.insert(ret.end(), new_sols.begin(), new_sols.end());
+                }
+            }
+        }
+        m[s] = ret;
+        return ret;
+    }
+
+    vector&lt;string&gt; combine(const vector&lt;string&gt; &amp;front, const string &amp;end) {
+        vector&lt;string&gt; ret;
+        for (const string &amp;v : front) {
+            ret.push_back(v + " " + end);
+        }
+        return ret;
+    }
+};
+</code>
+</pre>
+
+<h2>146. LRU Cache</h2>
+
+<div class="question-content">
+<p>
+Design and implement a data structure for Least Recently Used (LRU) cache. It should support the following operations: <code>get</code> and <code>set</code>.
+</p>
+
+<p>
+<code>get(key)</code> - Get the value (will always be positive) of the key if the key exists in the cache, otherwise return -1.<br>
+<code>set(key, value)</code> - Set or insert the value if the key is not already present. When the cache reached its capacity, it should invalidate the least recently used item before inserting a new item.
+</p>
+</div>
+
+<?prettify?>
+<pre class="prettyprint">
+<code class="lang-cc">
+
+struct Node {
+  int k = -1;
+  int v = -1;
+  Node *next = nullptr;
+  Node *front = nullptr;
+};
+
+class LRUCache{
+public:
+    LRUCache(int capacity) : cap_(capacity) {
+        link(&amp;begin, &amp;end);
+    }
+
+    int get(int key) {
+        if (!m.count(key)) {
+            return -1;
+        }
+        Node *n = m.at(key);
+        Pop(n);
+        Add(end.front, &amp;end, n);
+        return n->v;
+    }
+
+    void link(Node *a, Node *b) {
+        a->next = b;
+        b->front = a;
+    }
+
+    void Pop(Node *n) {
+        link(n->front, n->next);
+        m.erase(n->k);
+    }
+
+    void Add(Node *front, Node *next, Node *n) {
+        link(front, n);
+        link(n, next);
+        m[n->k] = n;
+    }
+
+    void AddToEnd(Node *n) {
+        Add(end.front, &amp;end, n);
+    }
+
+    void set(int key, int value) {
+        if (m.count(key)) {
+            Node *n = m.at(key);
+            n->v = value;
+            get(key); // Move it to the end. Set counts as one visit.
+        } else {
+            Node *n = new Node;
+            n->k = key;
+            n->v = value;
+            if (m.size() >= cap_) {
+                Pop(begin.next);
+            }
+            AddToEnd(n);
+        }
+    }
+
+    int cap_;
+    unordered_map&lt;int, Node*&gt; m;
+    Node begin;
+    Node end;
+};
+</code>
+</pre>
+
+<h2>155. Min Stack</h2>
+
+<div class="question-content">
+<p>
+  Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
+</p>
+<ul>
+<li>
+  push(x) -- Push element x onto stack.
+</li>
+<li>
+  pop() -- Removes the element on top of the stack.
+</li>
+<li>
+  top() -- Get the top element.
+</li>
+<li>
+  getMin() -- Retrieve the minimum element in the stack.
+</li>
+</ul>
+
+<p><b>Example:</b><br>
+</p><pre>MinStack minStack = new MinStack();
+minStack.push(-2);
+minStack.push(0);
+minStack.push(-3);
+minStack.getMin();   --&gt; Returns -3.
+minStack.pop();
+minStack.top();      --&gt; Returns 0.
+minStack.getMin();   --&gt; Returns -2.
+</pre>
+</div>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+  class MinStack {
+   public:
+    /** initialize your data structure here. */
+    MinStack() {
+
+    }
+
+    void push(int x) {
+        data_.push_back(x);
+        const int pos = data_.size() - 1;
+        if (min_.empty()) {
+            min_.push_back(pos);
+        } else if (getMin() > x) {
+            min_.push_back(pos);
+        }
+    }
+
+    void pop() {
+        const int pos = data_.size() - 1;
+        data_.pop_back();
+        if (pos == *min_.rbegin()) {
+            min_.pop_back();
+        }
+    }
+
+    int top() {
+        return *data_.rbegin();
+    }
+
+    int getMin() {
+        return data_.at(*min_.rbegin());
+    }
+
+    vector&lt;int&gt; data_;
+    vector&lt;int&gt; min_;
+};
+</code></pre>
+
+<h2>413. Arithmetic Slices</h2>
+
+<div class="question-content">
+<p>A sequence of number is called arithmetic if it consists of at least three elements and if the difference between any two consecutive elements is the same.</p>
+
+<p>For example, these are arithmetic sequence:</p>
+<pre>1, 3, 5, 7, 9
+7, 7, 7, 7
+3, -1, -5, -9</pre>
+
+<p>The following sequence is not arithmetic.</p> <pre>1, 1, 2, 5, 7</pre>
+
+<p>A zero-indexed array A consisting of N numbers is given. A slice of that array is any pair of integers (P, Q) such that 0 &lt;= P &lt; Q &lt; N.</p>
+
+<p>A slice (P, Q) of array A is called arithmetic if the sequence:<br>
+    A[P], A[p + 1], ..., A[Q - 1], A[Q] is arithmetic. In particular, this means that P + 1 &lt; Q.</p>
+
+<p>The function should return the number of arithmetic slices in the array A. </p>
+
+<p><b>Example:</b>
+</p><pre>A = [1, 2, 3, 4]
+
+return: 3, for 3 arithmetic slices in A: [1, 2, 3], [2, 3, 4] and [1, 2, 3, 4] itself.
+</pre>
+</div>
+
+<h3>My solution based on MATH.</h3>
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+  class Solution {
+   public:
+    int numberOfArithmeticSlices(vector&lt;int&gt;&amp; A) {
+        if (A.size() < 3) {
+            return 0;
+        }
+        vector&lt;int&gt; can;
+        for (int i = 0; i < A.size() - 2;) {
+            if (!isCandi(A, i)) {
+                ++i;
+                continue;
+            }
+            int len = findSeq(A, i);
+            can.push_back(len);
+            i += len - 1;
+        }
+        return sum(can);
+    }
+
+    bool isCandi(const vector&lt;int&gt; &amp;A, int i) {
+        return A[i+1] - A[i] == A[i+2] - A[i+1];
+    }
+
+    int findSeq(const vector&lt;int&gt; &amp;A, int i) {
+        const int dis = A[i+1] - A[i];
+        int j = i + 1;
+        for (; j < A.size() &amp;&amp; dis == A[j] - A[j-1]; ++j) {
+        }
+        return j - i;
+
+    }
+
+    int sum(const vector&lt;int&gt; &amp;candi) {
+        int ret = 0;
+        for (const int v : candi) {
+            ret += (v-1)*(v-2) / 2;
+        }
+        return ret;
+    }
+};
+</code></pre>
+
+<h3>Web solution based on Dynamic Programming.</h3>
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+public:
+    int numberOfArithmeticSlices(vector&lt;int&gt;&amp; A) {
+        int n = A.size();
+        if (n < 3) return 0;
+        // dp[i] means the number of arithmetic slices ending with A[i]
+        vector&lt;int&gt; dp(n, 0);
+        // if the first three numbers are arithmetic or not
+        if (A[2]-A[1] == A[1]-A[0]) dp[2] = 1;
+        int result = dp[2];
+        for (int i = 3; i < n; ++i) {
+            // if A[i-2], A[i-1], A[i] are arithmetic,
+            // then the number of arithmetic slices ending with A[i] (dp[i])
+            // equals to:
+            //      the number of arithmetic slices ending with A[i-1] (dp[i-1],
+            //      all these arithmetic slices appending A[i] are also arithmetic)
+            //      +
+            //      A[i-2], A[i-1], A[i] (a brand new arithmetic slice)
+            // it is how dp[i] = dp[i-1] + 1 comes
+            if (A[i]-A[i-1] == A[i-1]-A[i-2])
+                dp[i] = dp[i-1] + 1;
+            result += dp[i]; // accumulate all valid slices
+        }
+        return result;
+    }
+};
+</code></pre>
+
+
+
+
+
+
+<h2>446. Arithmetic Slices II - Subsequence   QuestionEditorial Solution</h2>
+<div class="question-content">
+<p>A sequence of numbers is called arithmetic if it consists of at least three elements and if the difference between any two consecutive elements is the same.</p>
+
+<p>For example, these are arithmetic sequences:</p>
+<pre>1, 3, 5, 7, 9
+7, 7, 7, 7
+3, -1, -5, -9</pre>
+
+<p>The following sequence is not arithmetic.</p> <pre>1, 1, 2, 5, 7</pre>
+
+<p>A zero-indexed array A consisting of N numbers is given. A <b>subsequence</b> slice of that array is any sequence of integers (P<sub>0</sub>, P<sub>1</sub>, ..., P<sub>k</sub>) such that 0 ≤ P<sub>0</sub> &lt; P<sub>1</sub> &lt; ... &lt; P<sub>k</sub> &lt; N.</p>
+
+<p>A <b>subsequence</b> slice (P<sub>0</sub>, P<sub>1</sub>, ..., P<sub>k</sub>) of array A is called arithmetic if the sequence A[P<sub>0</sub>], A[P<sub>1</sub>], ..., A[P<sub>k-1</sub>], A[P<sub>k</sub>] is arithmetic. In particular, this means that k ≥ 2.</p>
+
+<p>The function should return the number of arithmetic subsequence slices in the array A. </p>
+
+<p>The input contains N integers. Every integer is in the range of -2<sup>31</sup> and 2<sup>31</sup>-1 and 0 ≤ N ≤ 1000. The output is guaranteed to be less than 2<sup>31</sup>-1.</p>
+
+<p><b>Example:</b>
+</p><pre><b>Input:</b> [2, 4, 6, 8, 10]
+
+<b>Output:</b> 7
+
+<b>Explanation:</b>
+All arithmetic subsequence slices are:
+[2,4,6]
+[4,6,8]
+[6,8,10]
+[2,4,6,8]
+[4,6,8,10]
+[2,4,6,8,10]
+[2,6,10]
+</pre>
+</div>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+public:
+    int numberOfArithmeticSlices(vector&lt;int&gt;&amp; A) {
+        if (A.size() < 3) {
+            return 0;
+        }
+        int ret = 0;
+        // index -> diff -> count.
+        // Number of Arithmetic slices ending at index, with diff, min length is 2.
+        vector&lt;unordered_map&lt;int, int&gt;&gt; dp(A.size());
+        for (int i = 0; i < A.size(); ++i) {
+            for (int j = 0; j < i; ++j) {
+                const long bound = long(A[i]) - long(A[j]);
+                if (bound >= INT_MAX || bound <= INT_MIN) {
+                    continue;
+                }
+                const int diff = A[i] - A[j];
+                dp[i][diff] += 1;
+                if (dp[j].count(diff)) {
+                    dp[i][diff] += dp[j][diff];
+                    ret += dp[j][diff];
+                }
+            }
+        }
+        return ret;
+    }
+};
+</code></pre>
+
+
+<h2>397. Integer Replacement   QuestionEditorial Solution</h2>
+
+<div class="question-content">
+<p>
+Given a positive integer <i>n</i> and you can do operations as follow:
+</p>
+
+<p>
+</p><ol>
+<li>If <i>n</i> is even, replace <i>n</i> with <code><i>n</i>/2</code>.</li>
+<li>If <i>n</i> is odd, you can replace <i>n</i> with either <code><i>n</i> + 1</code> or <code><i>n</i> - 1</code>.</li>
+</ol>
+
+<p>
+What is the minimum number of replacements needed for <i>n</i> to become 1?
+</p>
+
+<p><b>Example 1:</b>
+</p><pre><b>Input:</b>
+8
+
+<b>Output:</b>
+3
+
+<b>Explanation:</b>
+8 -&gt; 4 -&gt; 2 -&gt; 1
+</pre>
+
+<p><b>Example 2:</b>
+</p><pre><b>Input:</b>
+7
+
+<b>Output:</b>
+4
+
+<b>Explanation:</b>
+7 -&gt; 8 -&gt; 4 -&gt; 2 -&gt; 1
+or
+7 -&gt; 6 -&gt; 3 -&gt; 2 -&gt; 1
+</pre>
+</div>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+public:
+    int integerReplacement(int n) {
+        // Check tails:
+        //   00 -> /2
+        //   10 -> /2
+        //   11 -> +1
+        //   01 -> -1
+        if (n == 1) {
+            return 0;
+        }
+        if (n == 0) {
+            return INT_MAX;
+        }
+        if (n == INT_MAX) {
+            return 32;
+        }
+        if (n == 2) {
+            return 1;
+        }
+        if (n == 3) {
+            return 2;
+        }
+        const int last = (n &amp; 3);
+        if (last == 3) {
+            return integerReplacement(n + 1) + 1;
+        } else if (last == 1) {
+            return integerReplacement(n - 1) + 1;
+        }
+        return integerReplacement(n / 2) + 1;
+    }
+};
+</code></pre>
+
+<h2>395. Longest Substring with At Least K Repeating Characters   QuestionEditorial Solution</h2>
+
+<div class="question-content">
+<p>
+Find the length of the longest substring <b><i>T</i></b> of a given string (consists of lowercase letters only) such that every character in <b><i>T</i></b> appears no less than <i>k</i> times.
+</p>
+
+<p><b>Example 1:</b>
+</p><pre>Input:
+s = "aaabb", k = 3
+
+Output:
+3
+
+The longest substring is "aaa", as 'a' is repeated 3 times.
+</pre>
+
+<p><b>Example 2:</b>
+</p><pre>Input:
+s = "ababbc", k = 2
+
+Output:
+5
+
+The longest substring is "ababb", as 'a' is repeated 2 times and 'b' is repeated 3 times.
+</pre>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+public:
+    int longestSubstring(string s, int k) {
+        return divideAndConqur(s, 0, s.size(), k);
+    }
+
+    // It takes O(logn) iterations and each iteration takes O(n) so the time
+    // complexity is O(nlogn).
+    int divideAndConqur(const string &amp;s, int b, int e, int k) {
+        if ((e - b) < k) {
+            return 0;
+        }
+        int cnt[26]{}; // Initialize all to 0.
+        for (int i = b; i < e; ++i) {
+            const int val = s[i] - 'a';
+            cnt[val] += 1;
+        }
+        for (int i = b; i < e; ++i) {
+            const int val = s[i] - 'a';
+            if (cnt[val] < k) {
+                // If we found one element whose total < k, then any sub string containing
+                // that element cannot be taken into consideration.
+                return max(divideAndConqur(s, b, i, k), divideAndConqur(s, i+1, e, k));
+            }
+        }
+        return e - b;
+    }
+};
+</code></pre>
+
+<p>
+Thanks to <a href="https://discuss.leetcode.com/topic/64483/10-lines-c-solution-clear-and-simple-3ms">wfxr</a>
+for enlightening.
+</p>
+<p>One O(n) time complexity solution is <a href="https://discuss.leetcode.com/topic/65229/c-o-n-simple-recursive-solution/2">here</a>, but it consumes O(n) extra memory as well.</p>
+
+<script src="http://code.jquery.com/jquery-2.2.2.min.js"></script>
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+</body>
+
