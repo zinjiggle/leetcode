@@ -820,6 +820,429 @@ public:
 -->
 
 
+<h2>410. Split Array Largest Sum BAIDU</h2>
+
+<div class="question-content">
+<p>Given an array which consists of non-negative integers and an integer <i>m</i>, you can split the array into <i>m</i> non-empty continuous subarrays. Write an algorithm to minimize the largest sum among these <i>m</i> subarrays.
+</p>
+
+<p><b>Note:</b><br>
+Given <i>m</i> satisfies the following constraint: 1 ≤ m ≤  length(nums) ≤ 14,000.
+</p>
+
+<p><b>Examples: </b>
+</p><pre>Input:
+<b>nums</b> = [7,2,5,10,8]
+<b>m</b> = 2
+
+Output:
+18
+
+Explanation:
+There are four ways to split <b>nums</b> into two subarrays.
+The best way is to split it into <b>[7,2,5]</b> and <b>[10,8]</b>,
+where the largest sum among the two subarrays is only 18.
+</pre>
+</div>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+public:
+    int splitArray(vector&lt;int&gt;&amp; nums, int m) {
+        if (nums.empty()) {
+            return 0;
+        }
+        if (nums.size() < m) {
+            return 0;
+        }
+        long max = sum(nums);
+        long min = MaxVal(nums);
+        while (min < max) {
+            const long mid = (min + max) / 2;
+            if (IsValid(nums, m, mid)) {
+                // It is valid to find a partition of m sub arrays with the
+                // largest sum <= mid.
+                // In this case, we should try a smaller mid to see whether
+                // there are better solutions.
+                max = mid;
+            } else {
+                // We increase mid to see whether there is valid solution.
+                min = mid + 1;
+            }
+        }
+        return min;
+    }
+
+    // Returns true if there is one partition of m with the largest sum <= max.
+    // This function can be done in O(n).
+    bool IsValid(const vector&lt;int&gt; &amp;n, int m, long max) {
+        long sum = 0;
+        int group = 1;
+        for (const int i : n) {
+            if (sum + i <= max) {
+                // Put as many element as possible into previous partition.
+                sum += i;
+            } else {
+                // The previous partition ends, start a new partition.
+                sum = i;
+                ++group;
+            }
+            if (group > m || sum > max) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Sum of vectors, using long because int will over flow.
+    long sum(const vector&lt;int&gt; &amp;n) {
+        long ret = 0;
+        for (const int i : n) {
+            ret += i;
+        }
+        return ret;
+    }
+
+    // The max value in the vector.
+    int MaxVal(const vector&lt;int&gt; &amp;n) {
+        int ret = 0;
+        for (const int i : n) {
+            ret = std::max(ret, i);
+        }
+        return ret;
+    }
+};
+</code></pre>
+
+<!--
+<h2>410. Split Array Largest Sum BAIDU</h2>
+-->
+
+<h2>161. One Edit Distance SNAPCHAT</h2>
+<p>Given two strings S and T, determine if they are both one edit distance apart.
+</p>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+public:
+    bool isOneEditDistance(string s, string t) {
+        if (s.empty() || t.empty()) {
+            return s.size() + t.size() == 1;
+        }
+        if (s.size() == t.size()) {
+            // When the two has the same size, check whether only one char differs.
+            int diff = 0;
+            for (int i = 0; i < s.size() &amp;&amp; diff <= 1; ++i) {
+                // Put diff <= 1 here to early terminate the loop.
+                if (s.at(i) != t.at(i)) {
+                    ++diff;
+                }
+            }
+            return diff == 1;
+        }
+        // Find the shorter string.
+        const string &amp;small = s.size() < t.size() ? s : t;
+        const string &amp;large = s.size() < t.size() ? t : s;
+        if (small.size() + 1 != large.size()) {
+            // If the two has distance not equal to one, false.
+            return false;
+        }
+        for (int i = 0; i < small.size(); i++) {
+            if (small.at(i) != large.at(i)) {
+                // Find the first character mismatch, than compare the following characters.
+                return small.substr(i) == large.substr(i + 1);
+            }
+        }
+        return true;
+    }
+};
+</code></pre>
+<!--
+<h2>161. One Edit Distance</h2>
+-->
+
+<h2>36. Valid Sudoku </h2>
+
+<div class="question-content">
+<p>Determine if a Sudoku is valid, according to: <a href="http://sudoku.com.au/TheRules.aspx">Sudoku Puzzles - The Rules</a>.</p>
+
+<p>The Sudoku board could be partially filled, where empty cells are filled with the character <code>'.'</code>.</p>
+
+<p>
+<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png"><br>
+</p><p style="font-size: 11px">A partially filled sudoku which is valid.</p>
+<p></p>
+
+<p><b>Note:</b><br>
+A valid Sudoku board (partially filled) is not necessarily solvable. Only the filled cells need to be validated.
+</p>
+</div>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+public:
+    using BOA = vector&lt;vector&lt;char&gt;&gt;;
+
+    bool ValidOrAdd(bitset&lt;9&gt; *n, const char val) {
+        if (val != '.') {
+            const int p = val - '1';
+            if (n->test(p)) {
+                return false;
+            } else {
+                n->set(p);
+                return true;
+            }
+        }
+        return true;
+    }
+
+    bool isValidSudoku(const BOA &amp;b) {
+        for (int i = 0; i < 9; i++) {
+             bitset&lt;9&gt; n;
+             for (int j = 0; j < 9; j++) {
+                 if (!ValidOrAdd(&amp;n, b[i][j])) {
+                     return false;
+                 }
+             }
+        }
+        for (int j = 0; j < 9; j++) {
+            bitset&lt;9&gt; n;
+            for (int i = 0; i < 9; i++) {
+                if (!ValidOrAdd(&amp;n, b[i][j])) {
+                    return false;
+                }
+            }
+        }
+        for (int i = 0; i < 9; i+=3) {
+            for (int j = 0; j < 9; j+=3) {
+                bitset&lt;9&gt; n;
+                for (int k = i; k < i + 3; k++) {
+                    for (int f = j; f < j + 3; f++) {
+                        if (!ValidOrAdd(&amp;n, b[k][f])) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+};
+</code></pre>
+
+<!--
+<h2>36. Valid Sudoku </h2>
+-->
+
+<h2>37. Sudoku Solver SNAPCHAT</h2>
+
+<div class="question-content">
+<p>Write a program to solve a Sudoku puzzle by filling the empty cells.</p>
+
+<p>Empty cells are indicated by the character <code>'.'</code>.</p>
+
+<p>You may assume that there will be only one unique solution.
+
+</p><p>
+<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Sudoku-by-L2G-20050714.svg/250px-Sudoku-by-L2G-20050714.svg.png"><br>
+</p><p style="font-size: 11px">A sudoku puzzle...</p>
+<p></p>
+
+<p>
+<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Sudoku-by-L2G-20050714_solution.svg/250px-Sudoku-by-L2G-20050714_solution.svg.png"><br>
+</p><p style="font-size: 11px">...and its solution numbers marked in red.
+</p>
+</div>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+public:
+    void solveSudoku(vector&lt;vector&lt;char&gt;&gt;&amp; board) {
+        solve(board);
+    }
+private:
+
+    using BOA = vector&lt;vector&lt;char&gt;&gt;;
+    using BIT = bitset&lt;9&gt;;
+    struct POS {
+        int r;
+        int c;
+        int cell() const {
+            return (r/3) * 3 + (c/3);
+        }
+    };
+
+    BIT row[10];
+    BIT col[10];
+    BIT cell[10];
+
+    void change(BIT *val, int num, bool bitval) {
+        if (bitval) {
+            val->set(num);
+        } else {
+            val->reset(num);
+        }
+    }
+
+    bool valid(const BOA &amp;b, const POS &amp;p, char val) {
+        // Returns true if it is OK to put val in (r, c).
+        const int test = val - '1';
+        return !(row[p.r].test(test)) &amp;&amp; !(col[p.c].test(test)) &amp;&amp; !(cell[p.cell()].test(test));
+    }
+
+    void set(BOA &amp;b, const POS &amp;p, char val) {
+        const int test = val - '1';
+        b[p.r][p.c] = val;
+        change(&amp;row[p.r], test, true);
+        change(&amp;col[p.c], test, true);
+        change(&amp;cell[p.cell()], test, true);
+    }
+
+    void clear(BOA &amp;b, const POS &amp;p) {
+        const int test = b[p.r][p.c] - '1';
+        b[p.r][p.c] = '.';
+        change(&amp;row[p.r], test, false);
+        change(&amp;col[p.c], test, false);
+        change(&amp;cell[p.cell()], test, false);
+    }
+
+    bool helper(BOA &amp;b, vector&lt;POS&gt; &amp;candi) {
+        if (candi.empty()) {
+            return true;
+        }
+        const POS p = *candi.rbegin();
+        candi.pop_back();
+        for (char d = '1'; d <= '9'; d++) {
+            if (valid(b, p, d)) {
+                set(b, p, d);
+                if (helper(b, candi)) return true;
+                clear(b, p);
+            }
+        }
+        candi.push_back(p);
+        return false;
+    }
+
+    void sort(vector&lt;POS&gt; &amp;candi) {
+        std::sort(candi.begin(), candi.end(), [this](const POS &amp;a, const POS &amp;b) {
+            int c_a = row[a.r].count() + col[a.c].count() + cell[a.cell()].count();
+            int c_b = row[b.r].count() + col[b.c].count() + cell[b.cell()].count();
+            return c_a < c_b;
+        });
+    }
+
+    bool solve(BOA &amp;board) {
+        vector&lt;POS&gt; candi;
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                const POS p {r, c};
+                if (board[p.r][p.c] != '.') {
+                    set(board, p, board[p.r][p.c]);
+                } else {
+                    candi.push_back(p);
+                }
+            }
+        }
+        sort(candi);
+        return helper(board, candi);
+    }
+};
+</code></pre>
+
+<!--
+<h2>37. Sudoku Solver </h2>
+-->
+
+<h2>127. Word Ladder </h2>
+<div class="question-content">
+<p>
+Given two words (<i>beginWord</i> and <i>endWord</i>), and a dictionary's word list, find the length of shortest transformation sequence from <i>beginWord</i> to <i>endWord</i>, such that:
+</p>
+<ol>
+<li>Only one letter can be changed at a time</li>
+<li>Each intermediate word must exist in the word list</li>
+</ol>
+
+<p>
+For example,
+</p>
+<p>
+Given:<br>
+<i>beginWord</i> = <code>"hit"</code><br>
+<i>endWord</i> = <code>"cog"</code><br>
+<i>wordList</i> = <code>["hot","dot","dog","lot","log"]</code><br>
+</p>
+<p>
+As one shortest transformation is <code>"hit" -&gt; "hot" -&gt; "dot" -&gt; "dog" -&gt; "cog"</code>,<br>
+return its length <code>5</code>.
+</p>
+
+<p>
+<b>Note:</b><br>
+</p><ul>
+<li>Return 0 if there is no such transformation sequence.</li>
+<li>All words have the same length.</li>
+<li>All words contain only lowercase alphabetic characters.</li>
+</ul>
+</div>
+
+<pre class="prettyprint">
+<code class="lang-cc" id="mycode">
+class Solution {
+public:
+    using SET = unordered_set&lt;string&gt;;
+    int ladderLength(string beg, string end, unordered_set&lt;string&gt;&amp; w) {
+        if (beg == end) {
+            return 1;
+        }
+        SET left, right, *pleft, *pright;
+        int dist = 2;
+        left.insert(beg);
+        right.insert(end);
+        w.erase(beg);
+        w.erase(end);
+
+        while (!left.empty() &amp;&amp; !right.empty()) {
+            if (left.size() <= right.size()) {
+                // We plan to process the one with smaller size first.
+                // As it can be more balanced in that way.
+                pleft = &amp;left;
+                pright = &amp;right;
+            } else {
+                pleft = &amp;right;
+                pright = &amp;left;
+            }
+            SET temp; // Store all neighbors of elements in pleft.
+            for (string v : *pleft) {
+                for (int i = 0; i < v.size(); ++i) {
+                const char ori = v[i];
+                for (char d = 'a'; d <= 'z'; ++d) {
+                    v[i] = d;
+                    if (pright->find(v) != pright->end()) {
+                        return dist;
+                    }
+                    if (w.find(v) != w.end()) {
+                        temp.insert(v);
+                        w.erase(v);
+                    }
+                }
+                v[i] = ori;
+            }
+            }
+            swap(*pleft, temp);
+            ++dist;
+        }
+        return 0;
+    }
+};
+</code></pre>
+
+
 <script src="http://code.jquery.com/jquery-2.2.2.min.js"></script>
 
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
